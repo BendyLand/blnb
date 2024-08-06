@@ -3,16 +3,17 @@ package bendyland.blnb.notebook
 import bendyland.blnb.note.*
 import scala.collection.mutable.*
 
-class Notebook(name: String): 
+class Notebook(val name: String): 
   var notes = List.empty[Note]
-  def getName = name
+  var currentNote = 1
 
   def addNote(text: String) = 
-    val note = Note(text)
+    val note = Note(currentNote, text)
     notes = notes :+ note
+    currentNote += 1
 
   def displayNotes =
-    println("Displaying notes...")
+    println(s"Displaying notes from '${this.name}':")
     for i <- 0 until notes.size do
-      println(notes(i).text)
+      println(s"${notes(i).id}) ${notes(i).text}")
       
