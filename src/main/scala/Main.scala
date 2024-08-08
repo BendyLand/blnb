@@ -1,7 +1,7 @@
 import bendyland.blnb.notebook.*
 import scala.io.StdIn.*
 
-@main def hello(): Unit =
+@main def run() =
   println("Welcome to blnb!")
   var mainLoop = true
   var notebooks = List.empty[Notebook]
@@ -12,9 +12,31 @@ import scala.io.StdIn.*
     input match
       case x if x.contains("create") => 
         notebooks = createNewNotebook(notebooks, input)
+      case x if x.contains("write") =>
+        var name = ""
+        if x.contains(" ") then
+          val parts = x.split(" ")
+          name = parts(1)
+        else
+          println("Which notebook would you like to write in?")
+          listNotebooks(notebooks)
+          name = readLine()
+        val maybeNb = getNotebook(notebooks, name)
+        maybeNb match
+          case None => println("Notebook not found.")
+          case Some(x) => 
+            println("Please enter your text:")
+            val text = readLine()
+            x.addNote(text)
       case x if x.contains("show") => 
-        println("Which notebook would you like to see?")
-        listNotebooks(notebooks)
+        if x.contains(" ") then
+          val parts = x.split(" ")
+          val nb = getNotebook(notebooks, parts(1))
+          nb match
+            case None => println("Notebook not found.")
+            case Some(x) => x.displayNotes
+        else
+          listNotebooks(notebooks)
       case x if x.contains("exit") => 
         println("Exiting...\nGoodbye")
         mainLoop = false
@@ -37,6 +59,12 @@ def createNewNotebook(notebooks: List[Notebook], input: String): List[Notebook] 
 def listNotebooks(notebooks: List[Notebook]) = 
   println("Notebooks:")
   notebooks.foreach { nb =>
-    println(s"${nb.name}" )
+    println(s"${nb.name}")
   }
 
+def getNotebook(notebooks: List[Notebook], name: String): Option[Notebook] =
+  val result = notebooks.filter(_.name == name)
+  if result.size > 0 then
+    Some(result(0))
+  else
+    None
