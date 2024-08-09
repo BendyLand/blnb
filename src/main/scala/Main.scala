@@ -10,33 +10,12 @@ import scala.io.StdIn.*
 		println("Please enter a command:")
 		input = readLine()
 		input match
-			case x if x.contains("create") => 
+			case x if x.contains("new") => 
 				notebooks = createNewNotebook(notebooks, input)
 			case x if x.contains("write") =>
-				var name = ""
-				if x.contains(" ") then
-					val parts = x.split(" ")
-					name = parts(1)
-				else
-					println("Which notebook would you like to write in?")
-					listNotebooks(notebooks)
-					name = readLine()
-				val maybeNb = getNotebook(notebooks, name)
-				maybeNb match
-					case None => println("Notebook not found.")
-					case Some(x) => 
-						println("Please enter your text:")
-						val text = readLine()
-						x.addNote(text)
-			case x if x.contains("show") => 
-				if x.contains(" ") then
-					val parts = x.split(" ")
-					val nb = getNotebook(notebooks, parts(1))
-					nb match
-						case None => println("Notebook not found.")
-						case Some(x) => x.displayNotes
-				else
-					listNotebooks(notebooks)
+				writeNote(notebooks, x)
+			case x if x.contains("show") =>  
+				showNotebooks(notebooks, x)
 			case x if x.contains("exit") => 
 				println("Exiting...\nGoodbye")
 				mainLoop = false
@@ -68,3 +47,30 @@ def getNotebook(notebooks: List[Notebook], name: String): Option[Notebook] =
 		Some(result(0))
 	else
 		None
+
+def showNotebooks(notebooks: List[Notebook], arg: String) = 
+	if arg.contains(" ") then
+		val parts = arg.split(" ")
+		val maybeNb = getNotebook(notebooks, parts(1))
+		maybeNb match
+			case None => println("Notebook not found.")
+			case Some(nb) => nb.displayNotes
+	else 
+		listNotebooks(notebooks)
+
+def writeNote(notebooks: List[Notebook], arg: String) = 
+	var name = ""
+	if arg.contains(" ") then
+		val parts = arg.split(" ")
+		name = parts(1)
+	else
+		println("Which notebook would you like to write in?")
+		listNotebooks(notebooks)
+		name = readLine()
+	val maybeNb = getNotebook(notebooks, name)
+	maybeNb match
+		case None => println("Notebook not found.")
+		case Some(arg) => 
+			println("Please enter your text:")
+			val text = readLine()
+			arg.addNote(text)
