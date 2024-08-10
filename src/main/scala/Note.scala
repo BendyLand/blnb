@@ -1,5 +1,10 @@
 package bendyland.blnb.note
 
-class Note(val id: Int, var text: String):
+import upickle.default.{ReadWriter => RW, macroRW}
+
+case class Note(val id: Int, var text: String):
 	def editText(newText: String) = 
 		this.text = newText
+
+object Note:
+	implicit val rw: RW[Note] = macroRW

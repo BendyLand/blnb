@@ -1,5 +1,10 @@
 import bendyland.blnb.notebook.*
+import bendyland.blnb.note.*
+import java.io
 import scala.io.StdIn.*
+import scala.collection.mutable.*
+import upickle.default.*
+import java.io.PrintWriter
 
 @main def run() =
 	println("Welcome to blnb!")
@@ -19,6 +24,10 @@ import scala.io.StdIn.*
 			case x if x.contains("exit") => 
 				println("Exiting...\nGoodbye")
 				mainLoop = false
+			case x if x.contains("save") =>
+				println("Saving notes to file...")
+				saveNotes(notebooks)
+				println("Notebooks saved successfully!")
 			case  _ => println("Unknown command.")
 
 def createNewNotebook(notebooks: List[Notebook], input: String): List[Notebook] = 
@@ -74,3 +83,10 @@ def writeNote(notebooks: List[Notebook], arg: String) =
 			println("Please enter your text:")
 			val text = readLine()
 			arg.addNote(text)
+
+def saveNotes(notebooks: List[Notebook]) = 
+	var result = Map.empty[String, List[Note]]
+	for note <- notebooks do
+		result(note.name) = note.notes
+	val json = upickle.default.write(result)
+	new PrintWriter("notebooks.json") { write(json); close }
