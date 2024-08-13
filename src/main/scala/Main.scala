@@ -1,5 +1,6 @@
 import bendyland.blnb.notebook.*
 import bendyland.blnb.note.*
+import bendyland.blnb.state.*
 import java.io
 import scala.io.StdIn.*
 import scala.collection.mutable.*
@@ -22,12 +23,23 @@ import java.io.PrintWriter
 			case x if x.contains("show") =>  
 				showNotebooks(notebooks, x)
 			case x if x.contains("exit") => 
+				if State.getSaveOnExit() then
+					println("Saving notes to a file...")
+					saveNotes(notebooks)
+					println("Notebooks saved successfully!")
 				println("Exiting...\nGoodbye")
 				mainLoop = false
+			case x if x.contains("saveOnExit") =>
+				val parts = x.split("=")
+				if parts.size > 1 then
+					val arg = parts(1).toBoolean
+					State.setSaveOnExit(arg)
 			case x if x.contains("save") =>
 				println("Saving notes to file...")
 				saveNotes(notebooks)
 				println("Notebooks saved successfully!")
+			case x if x.contains("help") =>
+				showHelpMenu()
 			case  _ => println("Unknown command.")
 
 def createNewNotebook(notebooks: List[Notebook], input: String): List[Notebook] = 
@@ -83,6 +95,7 @@ def writeNote(notebooks: List[Notebook], arg: String) =
 			println("Please enter your text:")
 			val text = readLine()
 			arg.addNote(text)
+			println("Note added successfully!")
 
 def saveNotes(notebooks: List[Notebook]) = 
 	var result = Map.empty[String, List[Note]]
@@ -90,3 +103,9 @@ def saveNotes(notebooks: List[Notebook]) =
 		result(note.name) = note.notes
 	val json = upickle.default.write(result)
 	new PrintWriter("notebooks.json") { write(json); close }
+
+def showHelpMenu() = 
+	val commands = List("new <opt_notebook_name>\nwrite <opt_notebook_name>\nshow <opt_notebook_name>\nsave\nsaveOnExit=true|false\nexit")
+	println("Welcome to the blnb help menu!")
+	for command <- commands do
+		println(command)
