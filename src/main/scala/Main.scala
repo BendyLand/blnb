@@ -3,6 +3,7 @@ import bendyland.blnb.note.*
 import bendyland.blnb.state.*
 import java.io
 import scala.io.StdIn.*
+import scala.util.{Try, Success, Failure}
 import scala.collection.mutable.*
 import upickle.default.*
 import java.io.PrintWriter
@@ -23,6 +24,7 @@ import java.io.PrintWriter
 			case x if x.contains("show") =>  
 				showNotebooks(notebooks, x)
 			case x if x.contains("exit") => 
+				//todo: create functions to load a config on startup
 				if State.getSaveOnExit() then
 					println("Saving notes to a file...")
 					saveNotes(notebooks)
@@ -38,6 +40,14 @@ import java.io.PrintWriter
 				println("Saving notes to file...")
 				saveNotes(notebooks)
 				println("Notebooks saved successfully!")
+			case x if x.contains("read") =>
+				println("Looking for saved notebooks...")
+				val maybeNotes = readSavedNotes()
+				maybeNotes match
+					case None => println("No saved notebooks found.")
+					case Some(x) => 
+						notebooks = x
+						println("Notebooks read successfully!")
 			case x if x.contains("help") =>
 				showHelpMenu()
 			case  _ => println("Unknown command.")
@@ -109,3 +119,24 @@ def showHelpMenu() =
 	println("Welcome to the blnb help menu!")
 	for command <- commands do
 		println(command)
+
+def readSavedNotes(): Option[List[Notebook]] = 
+	var result = List.empty[Notebook] 
+	var file = Map.empty[String, List[Note]] 
+	val tryContents = Try(scala.io.Source.fromFile("notebooks.json").mkString)
+	tryContents match
+		case Success(contents) =>
+			file = upickle.default.read[Map[String, List[Note]]](contents)
+			if !file.isEmpty then
+				file.foreach { (name, lst) =>
+					var nb = Notebook(name)
+					for item <- lst do
+						nb.addNote(item)
+					result = result :+ nb
+				}
+				Some(result)
+			else
+				None
+		case Failure(_) => 
+			None
+	

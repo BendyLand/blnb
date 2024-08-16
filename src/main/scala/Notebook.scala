@@ -7,9 +7,13 @@ class Notebook(val name: String):
 	var notes = List.empty[Note]
 	var currentNote = 1
 
-	def addNote(text: String) = 
-		val note = Note(currentNote, text)
-		notes = notes :+ note
+	def addNote(text: String|Note) = 
+		text match
+			case x: String =>
+				val note = Note(currentNote, x)
+				notes = notes :+ note
+			case x: Note =>
+				notes  = notes :+ x
 		currentNote += 1
 
 	def displayNotes =
