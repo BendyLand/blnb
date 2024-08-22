@@ -1,6 +1,5 @@
 import bendyland.blnb.notebook.*
 import bendyland.blnb.note.*
-import bendyland.blnb.state.*
 import java.io
 import scala.io.StdIn.*
 import scala.util.{Try, Success, Failure}
@@ -24,18 +23,11 @@ import java.io.PrintWriter
 			case x if x.contains("show") =>  
 				showNotebooks(notebooks, x)
 			case x if x.contains("exit") => 
-				//todo: create functions to load a config on startup
-				if State.getSaveOnExit() then
-					println("Saving notes to a file...")
-					saveNotes(notebooks)
-					println("Notebooks saved successfully!")
+				println("Saving notes to a file...")
+				saveNotes(notebooks)
+				println("Notebooks saved successfully!")
 				println("Exiting...\nGoodbye")
 				mainLoop = false
-			case x if x.contains("saveOnExit") =>
-				val parts = x.split("=")
-				if parts.size > 1 then
-					val arg = parts(1).toBoolean
-					State.setSaveOnExit(arg)
 			case x if x.contains("save") =>
 				println("Saving notes to file...")
 				saveNotes(notebooks)
