@@ -107,7 +107,7 @@ def saveNotes(notebooks: List[Notebook]) =
 	new PrintWriter("notebooks.json") { write(json); close }
 
 def showHelpMenu() = 
-	val commands = List("new <opt_notebook_name>\nwrite <opt_notebook_name>\nshow <opt_notebook_name>\nsave\nsaveOnExit=true|false\nexit")
+	val commands = List("new <opt_notebook_name>\nwrite <opt_notebook_name>\nshow <opt_notebook_name>\nsave\nexit")
 	println("Welcome to the blnb help menu!")
 	for command <- commands do
 		println(command)
