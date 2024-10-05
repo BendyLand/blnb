@@ -9,6 +9,9 @@ import java.io.PrintWriter
 
 @main def run() =
 	println("Welcome to blnb!")
+	mainLoop()
+
+def mainLoop() = 
 	var mainLoop = true
 	var notebooks = List.empty[Notebook]
 	while mainLoop do
@@ -22,6 +25,15 @@ import java.io.PrintWriter
 				writeNote(notebooks, x)
 			case x if x.contains("show") =>  
 				showNotebooks(notebooks, x)
+			case x if x.contains("remove") =>
+				val original = notebooks.size
+				notebooks = removeNotebook(notebooks)
+				if notebooks.size == original then
+					println("Something went wrong.")
+				else
+					println("Notebook removed successfully!")
+			case x if x.contains("erase") =>
+				eraseNote(notebooks)
 			case x if x.contains("exit") => 
 				println("Saving notes to a file...")
 				saveNotes(notebooks)
@@ -81,6 +93,45 @@ def showNotebooks(notebooks: List[Notebook], arg: String) =
 	else 
 		listNotebooks(notebooks)
 
+def eraseNote(notebooks: List[Notebook]) = 
+	println("Which notebook would you like to erase from? (Type the name)")
+	showNotebooks(notebooks, "")
+	val name = readLine() 
+	val validNames = notebooks.map(_.name) 
+	name match 
+		case x if validNames.contains(x) => 
+			println("Which note would you like to erase?")
+			val nb = notebooks.filter(_.name == name)(0)
+			nb.displayNotes
+			val original = nb.notes.size
+			val idStr = readLine()
+			var id = Try(idStr.toInt).toOption
+			var idInt = 0
+			id match
+				case None =>
+					println("Invalid ID format.")
+				case Some(x) =>
+					idInt = x
+			nb.eraseNote(idInt)
+			if nb.notes.size == original then
+				println("Something went wrong erasing your note.")
+			else
+				println("Note erased successfully!")
+		case _: String => 
+			println("Invalid notebook name.")
+
+def removeNotebook(notebooks: List[Notebook]): List[Notebook] = 
+	println("Which notebook would you like to remove? (Type the name)")
+	showNotebooks(notebooks, "")
+	val name = readLine() 
+	val validNames = notebooks.map(_.name) 
+	name match 
+		case x if validNames.contains(x) => 
+			notebooks.filter(_.name != name)
+		case _: String => 
+			println("Invalid notebook name.")
+			notebooks
+
 def writeNote(notebooks: List[Notebook], arg: String) = 
 	var name = ""
 	if arg.contains(" ") then
@@ -107,7 +158,15 @@ def saveNotes(notebooks: List[Notebook]) =
 	new PrintWriter("notebooks.json") { write(json); close }
 
 def showHelpMenu() = 
-	val commands = List("new <opt_notebook_name>\nwrite <opt_notebook_name>\nshow <opt_notebook_name>\nsave\nexit")
+	val commands = List(
+		"new <opt notebook name>", 
+		"write <opt notebook name>", 
+		"show <opt notebook name>", 
+		"remove (to remove a full notebook)",
+		"erase (to erase a single note)",
+		"save", 
+		"exit",
+	)
 	println("Welcome to the blnb help menu!")
 	for command <- commands do
 		println(command)
